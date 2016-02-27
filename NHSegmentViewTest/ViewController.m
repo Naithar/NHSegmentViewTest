@@ -7,21 +7,32 @@
 //
 
 #import "ViewController.h"
+#import "NHSegmentView.h"
 
 @interface ViewController ()
 
+@property (nonatomic, strong) NHSegmentView *segmentView;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    [self __setupViews];
+}
+
+- (void)__setupViews {
+    
+    CGFloat viewWidth = CGRectGetWidth(self.view.bounds);
+    CGFloat viewMidY = CGRectGetMidY(self.view.bounds);
+    
+    CGRect segmentRect = CGRectMake(15, viewMidY - 50, viewWidth - 30, 100);
+    self.segmentView = [[NHSegmentView alloc] initWithFrame:segmentRect];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 @end

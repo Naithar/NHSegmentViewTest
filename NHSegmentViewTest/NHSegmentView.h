@@ -8,9 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+@class NHSegmentView;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol NHSegmentViewDelegate <NSObject>
+
+- (void)nhSegmentView:(NHSegmentView *)segmentView didChangeIndex:(NSInteger)index;
 
 @end
 
@@ -18,6 +22,43 @@ IB_DESIGNABLE
 @interface NHSegmentView : UIView
 
 @property (nonatomic, nullable, weak) IBOutlet id<NHSegmentViewDelegate> delegate;
+
+#if TARGET_INTERFACE_BUILDER
+@property (nonatomic, assign) IBInspectable NSInteger itemsCount;
+#endif
+
+@property (nonatomic, assign) IBInspectable CGSize defaultSize;
+@property (nonatomic, assign) IBInspectable CGFloat itemSpace;
+@property (nonatomic, assign) IBInspectable CGFloat cornerRadius;
+@property (nonatomic, assign) IBInspectable CGFloat borderWidth;
+@property (nonatomic, nullable, assign) IBInspectable UIColor *borderColor;
+
+@property (nonatomic, null_resettable, strong) IBInspectable UIColor *itemColor;
+@property (nonatomic, null_resettable, strong) IBInspectable UIColor *itemTextColor;
+@property (nonatomic, null_resettable, strong) UIFont *itemFont;
+
+@property (nonatomic, null_resettable, strong) IBInspectable UIColor *selectedItemColor;
+@property (nonatomic, null_resettable, strong) IBInspectable UIColor *selectedItemTextColor;
+@property (nonatomic, null_resettable, strong) UIFont *selectedItemFont;
+
+@property (nonatomic, strong, readonly) NSArray<NSString *> *itemValues;
+@property (nonatomic, strong, readonly) NSArray<NSString *> *selectedItemValues;
+
+@property (nonatomic, assign, readonly) IBInspectable NSInteger selectedIndex;
+
+- (void)insertValue:(NSString *)value atIndex:(NSInteger)index;
+- (void)insertValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSInteger)index;
+
+- (void)appendValue:(NSString *)value;
+- (void)appendValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue;
+
+- (void)changeValue:(NSString *)value atIndex:(NSInteger)index;
+- (void)changeValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSInteger)index;
+
+- (void)removeAtIndex:(NSInteger)index;
+
+- (NSString *)valueAtIndex:(NSInteger)index;
+- (nullable NSString *)selectedValueAtIndex:(NSInteger)index;
 
 @end
 
