@@ -12,6 +12,7 @@
 @interface ViewController ()
 
 @property (nonatomic, strong) NHSegmentView *segmentView;
+
 @end
 
 @implementation ViewController
@@ -29,6 +30,9 @@
     
     CGRect segmentRect = CGRectMake(15, viewMidY - 50, viewWidth - 30, 100);
     self.segmentView = [[NHSegmentView alloc] initWithFrame:segmentRect];
+    self.segmentView.backgroundColor = [UIColor redColor];
+    
+    [self.view addSubview:self.segmentView];
 }
 
 - (void)didReceiveMemoryWarning {
