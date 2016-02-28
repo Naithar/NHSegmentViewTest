@@ -29,6 +29,7 @@ IB_DESIGNABLE
 
 @property (nonatomic, assign) IBInspectable CGSize defaultSize;
 @property (nonatomic, assign) IBInspectable CGFloat itemSpace;
+@property (nonatomic, assign) IBInspectable CGFloat itemSpaceLineWidth;
 @property (nonatomic, assign) IBInspectable CGFloat cornerRadius;
 @property (nonatomic, assign) IBInspectable CGFloat borderWidth;
 @property (nonatomic, nullable, assign) IBInspectable UIColor *borderColor;
