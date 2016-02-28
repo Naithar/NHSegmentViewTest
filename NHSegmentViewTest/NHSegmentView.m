@@ -18,6 +18,7 @@
 @property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
 
 @property (nonatomic, assign) NSInteger selectedIndex;
+@property (nonatomic, assign) CGRect selectedRect;
 
 @end
 
@@ -72,7 +73,9 @@
 
 - (void)__setupLayers {
     self.borderPathLayer = [CAShapeLayer layer];
+    self.borderPathLayer.strokeColor = self.borderColor.CGColor;
     self.borderPathLayer.fillColor = self.borderColor.CGColor;
+    self.borderPathLayer.lineWidth = 2 * self.borderWidth;
     [self.layer addSublayer:self.borderPathLayer];
     
     self.contentPathLayer = [CAShapeLayer layer];
@@ -108,36 +111,80 @@
     self.contentPathLayer.path = contentLayerPath;
     self.contentPathLayer.bounds = contentLayerBounds;
     
-    CGFloat borderWidth = self.borderWidth;
-    if (borderWidth) {
-        CGPathRef borderLayerPath = CGPathCreateCopyByStrokingPath(contentLayerPath,
-                                                                   NULL,
-                                                                   borderWidth * 2,
-                                                                   kCGLineCapRound,
-                                                                   kCGLineJoinRound,
-                                                                   1.0);
-        CGRect borderLayerBounds = CGPathGetBoundingBox(borderLayerPath);
-        CGFloat borderLayerWidth = CGRectGetWidth(borderLayerBounds);
-        CGFloat borderLayerHeight = CGRectGetHeight(borderLayerBounds);
-        self.borderPathLayer.bounds = CGRectMake(-borderWidth, -borderWidth, borderLayerWidth, borderLayerHeight);
-        self.borderPathLayer.path = borderLayerPath;
-    }
-    else {
-        self.borderPathLayer.bounds = CGRectZero;
-        self.borderPathLayer.path = nil;
-    }
+    self.borderPathLayer.path = contentLayerPath;
+    self.borderPathLayer.bounds = contentLayerBounds;
+    
+//    CGFloat borderWidth = self.borderWidth;
+//    if (borderWidth) {
+//        CGPathRef borderLayerPath = CGPathCreateCopyByStrokingPath(contentLayerPath,
+//                                                                   NULL,
+//                                                                   borderWidth * 2,
+//                                                                   kCGLineCapRound,
+//                                                                   kCGLineJoinRound,
+//                                                                   1.0);
+//        CGRect borderLayerBounds = CGPathGetBoundingBox(borderLayerPath);
+//        CGFloat borderLayerWidth = CGRectGetWidth(borderLayerBounds);
+//        CGFloat borderLayerHeight = CGRectGetHeight(borderLayerBounds);
+//        self.borderPathLayer.bounds = CGRectMake(-borderWidth, -borderWidth, borderLayerWidth, borderLayerHeight);
+//        self.borderPathLayer.path = borderLayerPath;
+//    }
+//    else {
+//        self.borderPathLayer.bounds = CGRectZero;
+//        self.borderPathLayer.path = nil;
+//    }
 }
 
 - (CGRect)__calculateLayerRectForIndex:(NSUInteger)index {
     CGSize defaultItemSize = [self defaultSize];
     CGFloat itemSpace = self.itemSpace;
     CGFloat itemWidth = (defaultItemSize.width + itemSpace);
-    CGPoint itemPoint = CGPointMake(index * itemWidth, 0);
-    CGSize itemSize = defaultItemSize;
-    CGRect itemRect = (CGRect) {
-        .origin = itemPoint,
-        .size = itemSize
-    };
+    CGRect itemRect;
+    
+    if (self.selectedIndex == index) {
+        CGPoint itemPoint = CGPointMake(index * itemWidth, 0);
+#if TARGET_INTERFACE_BUILDER
+        itemRect = (CGRect) { .origin = itemPoint, .size = CGSizeMake(2 * defaultItemSize.width, defaultItemSize.height) };
+#else
+        
+        NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        paragraphStyle.alignment = NSTextAlignmentCenter;
+        paragraphStyle.lineBreakMode = NSLineBreakByTruncatingMiddle;
+        UIFont *font = self.selectedItemFont;
+        CGFloat fontSize = [font pointSize] + 2;
+        paragraphStyle.minimumLineHeight = fontSize;
+        paragraphStyle.maximumLineHeight = fontSize;
+        NSDictionary *textAttributes = @{
+                                         NSFontAttributeName : font,
+                                         NSParagraphStyleAttributeName : paragraphStyle
+                                         };
+        
+        NSString *selectedText = [self selectedValueAtIndex:index];
+        CGFloat textWidth = [selectedText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)
+                                              options:NSStringDrawingUsesDeviceMetrics|NSStringDrawingUsesFontLeading|NSStringDrawingUsesLineFragmentOrigin
+                                           attributes:textAttributes
+                                                       context:nil].size.width + 5;
+        
+        itemRect = (CGRect) {
+            .origin = itemPoint,
+            .size = CGSizeMake(MAX(textWidth, defaultItemSize.width), defaultItemSize.height)
+        };
+#endif
+        
+        self.selectedRect = itemRect;
+    }
+    else {
+        if (index < self.selectedIndex
+            || self.selectedIndex < 0) {
+            CGPoint itemPoint = CGPointMake(index * itemWidth, 0);
+            itemRect = (CGRect) { .origin = itemPoint, .size = defaultItemSize };
+        }
+        else if (index > self.selectedIndex) {
+            NSInteger offsetIndex = index - self.selectedIndex - 1;
+            CGFloat startX = CGRectGetMaxX(self.selectedRect) + itemSpace;
+            CGPoint itemPoint = CGPointMake(startX + offsetIndex * itemWidth, 0);
+            itemRect = (CGRect) { .origin = itemPoint, .size = defaultItemSize };
+        }
+    }
     
     return itemRect;
 }
@@ -148,8 +195,6 @@
     CGFloat itemCornerRadius = self.cornerRadius;
     CGFloat lineWidth = self.itemSpaceLineWidth;
     CGSize defaultItemSize = [self defaultSize];
-    
-    //calculate path, add path -- loop, close path
     
 #if TARGET_INTERFACE_BUILDER
     for (int index = 0; index < self.itemsCount; index++) {
@@ -270,6 +315,39 @@
     return value;
 }
 
+- (void)selectIndex:(NSUInteger)index {
+    [self selectIndex:index animated:NO];
+}
+
+- (void)selectIndex:(NSUInteger)index animated:(BOOL)animated {
+    if (animated) {
+        CGPathRef prevContentPath = self.contentPathLayer.path;
+        CGRect prevContentBounds = self.contentPathLayer.bounds;
+        self.selectedIndex = index;
+        [self resetLayers];
+        
+        CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+        pathAnimation.fromValue = (__bridge id _Nullable)(prevContentPath);
+        pathAnimation.toValue = (__bridge id _Nullable)(self.contentPathLayer.path);
+        CABasicAnimation *boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
+        boundsAnimation.fromValue = [NSValue valueWithCGRect:prevContentBounds];
+        boundsAnimation.toValue = [NSValue valueWithCGRect:self.contentPathLayer.bounds];
+        CAAnimationGroup *animationGroup = [CAAnimationGroup new];
+        [animationGroup setAnimations:@[pathAnimation, boundsAnimation]];
+        animationGroup.duration = 0.35;
+        animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        [self.contentPathLayer addAnimation:animationGroup forKey:@"path|bounds"];
+        
+        if (self.borderWidth) {
+            [self.borderPathLayer addAnimation:animationGroup forKey:@"path|bounds"];
+        }
+    }
+    else {
+        self.selectedIndex = index;
+        [self resetLayers];
+    }
+}
+
 
 #pragma mark - Actions
 
@@ -301,7 +379,8 @@
 }
 
 - (CGSize)defaultSize {
-    if (CGSizeEqualToSize(CGSizeZero, _defaultSize)) {
+    if (_defaultSize.width == 0
+        || _defaultSize.height == 0) {
         return CGSizeMake(50, 50);
     }
     
@@ -325,12 +404,13 @@
 
 - (void)setBorderWidth:(CGFloat)borderWidth {
     _borderWidth = borderWidth;
-    [self resetLayers];
+    self.borderPathLayer.lineWidth = 2 * borderWidth;
 }
 
 - (void)setBorderColor:(UIColor *)borderColor {
     _borderColor = borderColor;
-    self.borderPathLayer.fillColor = self.borderColor.CGColor;
+    self.borderPathLayer.strokeColor = borderColor.CGColor;
+    self.borderPathLayer.fillColor = borderColor.CGColor;
 }
 
 - (UIColor *)borderColor {
@@ -339,7 +419,7 @@
 
 - (void)setItemColor:(UIColor *)itemColor {
     _itemColor = itemColor;
-    self.contentPathLayer.fillColor = self.itemColor.CGColor;
+    self.contentPathLayer.fillColor = itemColor.CGColor;
 }
 
 - (UIColor *)itemColor {
@@ -397,6 +477,13 @@
 
 - (NSArray<NSString *> *)selectedItemValues {
     return self.mutableSelectedItemValues;
+}
+
+- (void)setSelectedIndex:(NSInteger)selectedIndex {
+    _selectedIndex = selectedIndex;
+#if TARGET_INTERFACE_BUILDER
+    [self resetLayers];
+#endif
 }
 
 @end
