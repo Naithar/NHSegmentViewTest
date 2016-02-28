@@ -8,13 +8,14 @@
 
 
 #import "NHSegmentView.h"
+#import "NHTextLayer.h"
 
 @interface NHSegmentView ()
 
 @property (nonatomic, strong) CAShapeLayer *borderPathLayer;
 @property (nonatomic, strong) CAShapeLayer *contentPathLayer;
 
-@property (nonatomic, strong) NSMutableArray<CATextLayer *> *textLayers;
+@property (nonatomic, strong) NSMutableArray<NHTextLayer *> *textLayers;
 
 @property (nonatomic, strong) NSMutableArray<NSString *> *mutableItemValues;
 @property (nonatomic, strong) NSMutableArray<NSString *> *mutableSelectedItemValues;
@@ -176,7 +177,7 @@
                                                   BOOL * _Nonnull stop) {
         CGRect itemRect = [self __calculateLayerRectForIndex:index];
         
-        CATextLayer *textLayer = self.textLayers[index];
+        NHTextLayer *textLayer = self.textLayers[index];
         textLayer.frame = itemRect;
         
         [CATransaction begin];
@@ -336,7 +337,7 @@
         self.selectedIndex = index;
         [self resetLayers];
         
-        [self.textLayers enumerateObjectsUsingBlock:^(CATextLayer * _Nonnull layer,
+        [self.textLayers enumerateObjectsUsingBlock:^(NHTextLayer * _Nonnull layer,
                                                       NSUInteger index,
                                                       BOOL * _Nonnull stop) {
             CABasicAnimation *boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
@@ -482,7 +483,7 @@
 
 - (void)setItemTextColor:(UIColor *)itemTextColor {
     _itemTextColor = itemTextColor;
-    for (CATextLayer *layer in self.textLayers) {
+    for (NHTextLayer *layer in self.textLayers) {
         layer.foregroundColor = self.itemTextColor.CGColor;
     }
 }
@@ -493,7 +494,7 @@
 
 - (void)setItemFont:(UIFont *)itemFont {
     _itemFont = itemFont;
-    [self.textLayers enumerateObjectsUsingBlock:^(CATextLayer * _Nonnull layer,
+    [self.textLayers enumerateObjectsUsingBlock:^(NHTextLayer * _Nonnull layer,
                                                   NSUInteger idx,
                                                   BOOL * _Nonnull stop) {
         if (idx == self.selectedIndex) {
@@ -525,7 +526,7 @@
     _selectedItemTextColor = selectedItemTextColor;
     
     if (self.selectedIndex >= 0) {
-        CATextLayer *textLayer = self.textLayers[self.selectedIndex];
+        NHTextLayer *textLayer = self.textLayers[self.selectedIndex];
         textLayer.foregroundColor = self.selectedItemTextColor.CGColor;
     }
 }
@@ -538,7 +539,7 @@
     _selectedItemFont = selectedItemFont;
    
     if (self.selectedIndex >= 0) {
-        CATextLayer *textLayer = self.textLayers[self.selectedIndex];
+        NHTextLayer *textLayer = self.textLayers[self.selectedIndex];
         textLayer.font = (__bridge CFTypeRef _Nullable)(self.selectedItemFont.fontName);
         textLayer.fontSize = self.selectedItemFont.pointSize;
     }
@@ -567,7 +568,7 @@
     _selectedRect = selectedRect;
 }
 
-- (NSMutableArray<CATextLayer *> *)textLayers {
+- (NSMutableArray<NHTextLayer *> *)textLayers {
     if (_textLayers.count != self.itemValues.count) {
         for (CALayer *layer in _textLayers) {
             [layer removeFromSuperlayer];
@@ -575,7 +576,7 @@
         
         _textLayers = [NSMutableArray new];
         for (int i = 0; i < self.itemValues.count; i++) {
-            CATextLayer *layer = [CATextLayer layer];
+            NHTextLayer *layer = [NHTextLayer layer];
             layer.backgroundColor = [UIColor clearColor].CGColor;
             layer.cornerRadius = self.cornerRadius;
             layer.font = (__bridge CFTypeRef _Nullable)(self.itemFont.fontName);
