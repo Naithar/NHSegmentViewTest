@@ -15,6 +15,7 @@
 		90E50E011C820D8F003E1779 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90E50DFF1C820D8F003E1779 /* LaunchScreen.storyboard */; };
 		90E50E0A1C820D9E003E1779 /* NHSegmentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90E50E091C820D9E003E1779 /* NHSegmentView.m */; };
 		90E50E101C821AA4003E1779 /* StoryboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90E50E0F1C821AA4003E1779 /* StoryboardViewController.m */; };
+		90F336B91C8324B300F43EAD /* NHTextLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F336B81C8324B300F43EAD /* NHTextLayer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,8 @@
 		90E50E091C820D9E003E1779 /* NHSegmentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NHSegmentView.m; sourceTree = "<group>"; };
 		90E50E0E1C821AA4003E1779 /* StoryboardViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoryboardViewController.h; sourceTree = "<group>"; };
 		90E50E0F1C821AA4003E1779 /* StoryboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StoryboardViewController.m; sourceTree = "<group>"; };
+		90F336B71C8324B300F43EAD /* NHTextLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NHTextLayer.h; sourceTree = "<group>"; };
+		90F336B81C8324B300F43EAD /* NHTextLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NHTextLayer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +106,8 @@
 		90E50E0D1C820EDF003E1779 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				90F336B71C8324B300F43EAD /* NHTextLayer.h */,
+				90F336B81C8324B300F43EAD /* NHTextLayer.m */,
 				90E50E081C820D9E003E1779 /* NHSegmentView.h */,
 				90E50E091C820D9E003E1779 /* NHSegmentView.m */,
 				90E50DF71C820D8F003E1779 /* ViewController.h */,
@@ -187,6 +192,7 @@
 				90E50DF61C820D8F003E1779 /* AppDelegate.m in Sources */,
 				90E50E101C821AA4003E1779 /* StoryboardViewController.m in Sources */,
 				90E50E0A1C820D9E003E1779 /* NHSegmentView.m in Sources */,
+				90F336B91C8324B300F43EAD /* NHTextLayer.m in Sources */,
 				90E50DF31C820D8F003E1779 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -334,6 +340,7 @@
 				90E50E071C820D8F003E1779 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

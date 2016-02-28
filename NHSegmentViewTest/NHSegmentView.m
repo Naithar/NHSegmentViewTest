@@ -6,13 +6,15 @@
 //  Copyright © 2016 Naithar. All rights reserved.
 //
 
+
 #import "NHSegmentView.h"
 
 @interface NHSegmentView ()
 
 @property (nonatomic, strong) CAShapeLayer *borderPathLayer;
 @property (nonatomic, strong) CAShapeLayer *contentPathLayer;
-@property (nonatomic, strong) CALayer *selectionLayer;
+
+@property (nonatomic, strong) NSMutableArray<CATextLayer *> *textLayers;
 
 @property (nonatomic, strong) NSMutableArray<NSString *> *mutableItemValues;
 @property (nonatomic, strong) NSMutableArray<NSString *> *mutableSelectedItemValues;
@@ -25,10 +27,6 @@
 
 @implementation NHSegmentView
 
-#if TARGET_INTERFACE_BUILDER
-@synthesize itemsCount = _itemsCount;
-#endif
-
 @synthesize defaultSize = _defaultSize;
 @synthesize borderColor = _borderColor;
 @synthesize itemColor = _itemColor;
@@ -37,6 +35,9 @@
 @synthesize selectedItemColor = _selectedItemColor;
 @synthesize selectedItemTextColor = _selectedItemTextColor;
 @synthesize selectedItemFont = _selectedItemFont;
+
+- (void)dealloc {
+}
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
@@ -59,15 +60,18 @@
 }
 
 - (void)__nhCommonInit {
+    _selectedIndex = -1;
+    _mutableItemValues = [NSMutableArray new];
 #if TARGET_INTERFACE_BUILDER
-    self.itemsCount = -1;
+    _mutableItemValues = @[@"1", @"2", @"3"];
 #endif
-    self.selectedIndex = -1;
-    self.mutableItemValues = [NSMutableArray new];
-    self.mutableSelectedItemValues = [NSMutableArray new];
-    self.tapGestureRecognizer = [[UITapGestureRecognizer alloc]
+    _mutableSelectedItemValues = [NSMutableArray new];
+#if TARGET_INTERFACE_BUILDER
+    _mutableSelectedItemValues = @[@"1", @"2 selected", @"3 long selected"];
+#endif
+    _tapGestureRecognizer = [[UITapGestureRecognizer alloc]
                                  initWithTarget:self action:@selector(tapGestureRecognizerAction:)];
-    [self addGestureRecognizer:self.tapGestureRecognizer];
+    [self addGestureRecognizer:_tapGestureRecognizer];
     
     [self __setupLayers];
 }
@@ -84,26 +88,10 @@
     self.contentPathLayer.masksToBounds = true;
     [self.layer addSublayer:self.contentPathLayer];
     
-    self.selectionLayer = [CALayer layer];
-    self.selectionLayer.backgroundColor = self.selectedItemColor.CGColor;
-    [self.contentPathLayer addSublayer:self.selectionLayer];
-    
     [self resetLayers];
 }
 
 - (void)resetLayers {
-    
-#if TARGET_INTERFACE_BUILDER
-    if (self.itemsCount == 0) {
-        self.contentPathLayer.path = nil;
-        self.contentPathLayer.bounds = CGRectZero;
-        self.borderPathLayer.bounds = CGRectZero;
-        self.borderPathLayer.path = nil;
-        self.selectedRect = CGRectZero;
-        self.selectedIndex = -1;
-        return;
-    }
-#else
     if (self.itemValues.count == 0) {
         self.contentPathLayer.path = nil;
         self.contentPathLayer.bounds = CGRectZero;
@@ -113,7 +101,6 @@
         self.selectedIndex = -1;
         return;
     }
-#endif
     
     CGPathRef contentLayerPath = [self __calculateLayerPath];
     CGRect contentLayerBounds = CGPathGetBoundingBox(contentLayerPath);
@@ -133,13 +120,9 @@
     
     if (self.selectedIndex == index) {
         CGPoint itemPoint = CGPointMake(index * itemWidth, 0);
-#if TARGET_INTERFACE_BUILDER
-        itemRect = (CGRect) { .origin = itemPoint, .size = CGSizeMake(2 * defaultItemSize.width, defaultItemSize.height) };
-#else
         
         NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
         paragraphStyle.alignment = NSTextAlignmentCenter;
-        paragraphStyle.lineBreakMode = NSLineBreakByTruncatingMiddle;
         UIFont *font = self.selectedItemFont;
         CGFloat fontSize = [font pointSize] + 2;
         paragraphStyle.minimumLineHeight = fontSize;
@@ -151,17 +134,18 @@
         
         NSString *selectedText = [self selectedValueAtIndex:index];
         CGFloat textWidth = [selectedText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)
-                                                       options:NSStringDrawingUsesDeviceMetrics|NSStringDrawingUsesFontLeading|NSStringDrawingUsesLineFragmentOrigin
+                                                       options:NSStringDrawingUsesFontLeading|NSStringDrawingUsesLineFragmentOrigin
                                                     attributes:textAttributes
-                                                       context:nil].size.width + 5;
+                                                       context:nil].size.width + 20;
         
         itemRect = (CGRect) {
             .origin = itemPoint,
             .size = CGSizeMake(MAX(textWidth, defaultItemSize.width), defaultItemSize.height)
         };
-#endif
         
         self.selectedRect = itemRect;
+        
+        
     }
     else {
         if (index < self.selectedIndex
@@ -187,19 +171,31 @@
     CGFloat lineWidth = self.itemSpaceLineWidth;
     CGSize defaultItemSize = [self defaultSize];
     
-#if TARGET_INTERFACE_BUILDER
-    for (int index = 0; index < self.itemsCount; index++) {
-        CGRect itemRect = [self __calculateLayerRectForIndex:index];
-        CGPathAddRoundedRect(layerPath, nil, itemRect, itemCornerRadius, itemCornerRadius);
-    }
-#else
     [self.itemValues enumerateObjectsUsingBlock:^(NSString * _Nonnull obj,
                                                   NSUInteger index,
                                                   BOOL * _Nonnull stop) {
         CGRect itemRect = [self __calculateLayerRectForIndex:index];
+        
+        CATextLayer *textLayer = self.textLayers[index];
+        textLayer.frame = itemRect;
+        
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
+        if (index == self.selectedIndex) {
+            textLayer.backgroundColor = self.selectedItemColor.CGColor;
+            textLayer.foregroundColor = self.selectedItemTextColor.CGColor;
+            textLayer.string = [self selectedValueAtIndex:index];
+        }
+        else {
+            textLayer.backgroundColor = [UIColor clearColor].CGColor;
+            textLayer.foregroundColor = self.itemTextColor.CGColor;
+            textLayer.string = [self valueAtIndex:index];
+        }
+        
+        [CATransaction commit];
+        
         CGPathAddRoundedRect(layerPath, nil, itemRect, itemCornerRadius, itemCornerRadius);
     }];
-#endif
     
     if (lineWidth) {
         CGRect pathRect = CGPathGetBoundingBox(layerPath);
@@ -207,7 +203,10 @@
         CGFloat pathHeight = CGRectGetHeight(pathRect);
         CGFloat lineRectHeight = MIN(lineWidth, pathHeight);
         CGFloat lineOffset = defaultItemSize.width;
-        CGRect lineRect = CGRectMake(lineOffset / 2, pathHeight / 2 - lineRectHeight / 2, pathWidth - lineOffset, lineRectHeight);
+        CGRect lineRect = CGRectMake(lineOffset / 2,
+                                     pathHeight / 2 - lineRectHeight / 2,
+                                     pathWidth - lineOffset,
+                                     lineRectHeight);
         CGPathAddRect(layerPath, nil, lineRect);
     }
     
@@ -238,6 +237,7 @@
     
     [self.mutableItemValues addObjectsFromArray:itemValues];
     [self.mutableSelectedItemValues addObjectsFromArray:itemValues];
+    
     [self resetLayers];
 }
 
@@ -274,7 +274,10 @@
         self.mutableItemValues[index] = value;
     }
     
-    self.mutableSelectedItemValues[index] = selectedValue ?: value ?: self.mutableItemValues[index];
+    self.mutableSelectedItemValues[index] = selectedValue
+    ?: value
+    ?: self.mutableItemValues[index];
+    
     [self resetLayers];
 }
 
@@ -306,11 +309,11 @@
     return value;
 }
 
-- (void)selectIndex:(NSUInteger)index {
+- (void)selectIndex:(NSInteger)index {
     [self selectIndex:index animated:NO];
 }
 
-- (void)selectIndex:(NSUInteger)index animated:(BOOL)animated {
+- (void)selectIndex:(NSInteger)index animated:(BOOL)animated {
     if (index == -1) {
         self.selectedRect = CGRectZero;
     }
@@ -318,26 +321,35 @@
     if (animated) {
         CGPathRef prevContentPath = self.contentPathLayer.path;
         CGRect prevContentBounds = self.contentPathLayer.bounds;
+        NSMutableArray *textLayerBounds = [NSMutableArray new];
+        NSMutableArray *textLayerPosition = [NSMutableArray new];
         
-        [CATransaction begin];
-        [CATransaction setDisableActions:YES];
-        self.selectionLayer.opacity = 0;
-        [CATransaction commit];
+        for (CALayer *layer in self.textLayers) {
+            [textLayerBounds addObject:[NSValue valueWithCGRect:layer.bounds]];
+            [textLayerPosition addObject:[NSValue valueWithCGPoint:layer.position]];
+        }
         
         self.selectedIndex = index;
         [self resetLayers];
         
-        [CATransaction begin];
-        [CATransaction setCompletionBlock:^{
-            self.selectionLayer.opacity = 1;
+        [self.textLayers enumerateObjectsUsingBlock:^(CATextLayer * _Nonnull layer,
+                                                      NSUInteger index,
+                                                      BOOL * _Nonnull stop) {
+            CABasicAnimation *boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
+            boundsAnimation.fromValue = textLayerBounds[index];
+            CABasicAnimation *positionAnimation = [CABasicAnimation animationWithKeyPath:@"position"];
+            positionAnimation.fromValue = textLayerPosition[index];
+            CAAnimationGroup *animationGroup = [CAAnimationGroup new];
+            [animationGroup setAnimations:@[boundsAnimation, positionAnimation]];
+            animationGroup.duration = 0.35;
+            animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+            [layer addAnimation:animationGroup forKey:@"bounds|position"];
         }];
         
         CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
         pathAnimation.fromValue = (__bridge id _Nullable)(prevContentPath);
-        pathAnimation.toValue = (__bridge id _Nullable)(self.contentPathLayer.path);
         CABasicAnimation *boundsAnimation = [CABasicAnimation animationWithKeyPath:@"bounds"];
         boundsAnimation.fromValue = [NSValue valueWithCGRect:prevContentBounds];
-        boundsAnimation.toValue = [NSValue valueWithCGRect:self.contentPathLayer.bounds];
         CAAnimationGroup *animationGroup = [CAAnimationGroup new];
         [animationGroup setAnimations:@[pathAnimation, boundsAnimation]];
         animationGroup.duration = 0.35;
@@ -348,8 +360,6 @@
         if (self.borderWidth) {
             [self.borderPathLayer addAnimation:animationGroup forKey:@"path|bounds"];
         }
-        
-        [CATransaction commit];
     }
     else {
         self.selectedIndex = index;
@@ -410,23 +420,6 @@
 
 #pragma mark - Getters and Setters
 
-#if TARGET_INTERFACE_BUILDER
-
-- (void)setItemsCount:(NSInteger)itemsCount {
-    _itemsCount = itemsCount;
-    [self resetLayers];
-}
-
-- (NSInteger)itemsCount {
-    if (_itemsCount < 0) {
-        return 3;
-    }
-    
-    return _itemsCount;
-}
-
-#endif
-
 - (void)setDefaultSize:(CGSize)defaultSize {
     _defaultSize = defaultSize;
     [self resetLayers];
@@ -453,7 +446,9 @@
 
 - (void)setCornerRadius:(CGFloat)cornerRadius {
     _cornerRadius = cornerRadius;
-    self.selectionLayer.cornerRadius = cornerRadius;
+    for (CALayer *layer in self.textLayers) {
+        layer.cornerRadius = cornerRadius;
+    }
     [self resetLayers];
 }
 
@@ -483,7 +478,9 @@
 
 - (void)setItemTextColor:(UIColor *)itemTextColor {
     _itemTextColor = itemTextColor;
-    //TODO: !!!
+    for (CATextLayer *layer in self.textLayers) {
+        layer.foregroundColor = itemTextColor.CGColor;
+    }
 }
 
 - (UIColor *)itemTextColor {
@@ -492,7 +489,10 @@
 
 - (void)setItemFont:(UIFont *)itemFont {
     _itemFont = itemFont;
-    //TODO: !!!
+    for (CATextLayer *layer in self.textLayers) {
+        layer.font = (__bridge CFTypeRef _Nullable)(itemFont.fontName);
+        layer.fontSize = itemFont.pointSize;
+    }
 }
 
 - (UIFont *)itemFont {
@@ -501,7 +501,10 @@
 
 - (void)setSelectedItemColor:(UIColor *)selectedItemColor {
     _selectedItemColor = selectedItemColor;
-    self.selectionLayer.backgroundColor = self.selectedItemColor.CGColor;
+    
+    if (self.selectedIndex >= 0) {
+        self.textLayers[self.selectedIndex].backgroundColor = self.selectedItemColor.CGColor;
+    }
 }
 
 - (UIColor *)selectedItemColor {
@@ -543,11 +546,31 @@
 
 - (void)setSelectedRect:(CGRect)selectedRect {
     _selectedRect = selectedRect;
+}
+
+- (NSMutableArray<CATextLayer *> *)textLayers {
+    if (_textLayers.count != self.itemValues.count) {
+        for (CALayer *layer in _textLayers) {
+            [layer removeFromSuperlayer];
+        }
+        
+        _textLayers = [NSMutableArray new];
+        for (int i = 0; i < self.itemValues.count; i++) {
+            CATextLayer *layer = [CATextLayer layer];
+            layer.backgroundColor = [UIColor clearColor].CGColor;
+            layer.cornerRadius = self.cornerRadius;
+            layer.font = (__bridge CFTypeRef _Nullable)(self.itemFont.fontName);
+            layer.fontSize = self.itemFont.pointSize;
+            layer.foregroundColor = self.itemTextColor.CGColor;
+            layer.masksToBounds = YES;
+            layer.alignmentMode = kCAAlignmentCenter;
+            [self.contentPathLayer addSublayer:layer];
+            
+            [_textLayers addObject:layer];
+        }
+    }
     
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    self.selectionLayer.frame = selectedRect;
-    [CATransaction commit];
+    return _textLayers;
 }
 
 @end

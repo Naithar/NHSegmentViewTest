@@ -24,10 +24,6 @@ IB_DESIGNABLE
 
 @property (nonatomic, nullable, weak) IBOutlet id<NHSegmentViewDelegate> delegate;
 
-#if TARGET_INTERFACE_BUILDER
-@property (nonatomic, assign) IBInspectable NSInteger itemsCount;
-#endif
-
 @property (nonatomic, assign) IBInspectable CGSize defaultSize;
 @property (nonatomic, assign) IBInspectable CGFloat itemSpace;
 @property (nonatomic, assign) IBInspectable CGFloat itemSpaceLineWidth;
@@ -64,8 +60,8 @@ IB_DESIGNABLE
 - (nullable NSString *)valueAtIndex:(NSUInteger)index;
 - (nullable NSString *)selectedValueAtIndex:(NSUInteger)index;
 
-- (void)selectIndex:(NSUInteger)index;
-- (void)selectIndex:(NSUInteger)index animated:(BOOL)animated;
+- (void)selectIndex:(NSInteger)index;
+- (void)selectIndex:(NSInteger)index animated:(BOOL)animated;
 
 @end
 
