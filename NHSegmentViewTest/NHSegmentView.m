@@ -93,6 +93,8 @@
         self.contentPathLayer.bounds = CGRectZero;
         self.borderPathLayer.bounds = CGRectZero;
         self.borderPathLayer.path = nil;
+        self.selectedRect = CGRectZero;
+        self.selectedIndex = -1;
         return;
     }
 #else
@@ -101,6 +103,8 @@
         self.contentPathLayer.bounds = CGRectZero;
         self.borderPathLayer.bounds = CGRectZero;
         self.borderPathLayer.path = nil;
+        self.selectedRect = CGRectZero;
+        self.selectedIndex = -1;
         return;
     }
 #endif
@@ -113,25 +117,6 @@
     
     self.borderPathLayer.path = contentLayerPath;
     self.borderPathLayer.bounds = contentLayerBounds;
-    
-//    CGFloat borderWidth = self.borderWidth;
-//    if (borderWidth) {
-//        CGPathRef borderLayerPath = CGPathCreateCopyByStrokingPath(contentLayerPath,
-//                                                                   NULL,
-//                                                                   borderWidth * 2,
-//                                                                   kCGLineCapRound,
-//                                                                   kCGLineJoinRound,
-//                                                                   1.0);
-//        CGRect borderLayerBounds = CGPathGetBoundingBox(borderLayerPath);
-//        CGFloat borderLayerWidth = CGRectGetWidth(borderLayerBounds);
-//        CGFloat borderLayerHeight = CGRectGetHeight(borderLayerBounds);
-//        self.borderPathLayer.bounds = CGRectMake(-borderWidth, -borderWidth, borderLayerWidth, borderLayerHeight);
-//        self.borderPathLayer.path = borderLayerPath;
-//    }
-//    else {
-//        self.borderPathLayer.bounds = CGRectZero;
-//        self.borderPathLayer.path = nil;
-//    }
 }
 
 - (CGRect)__calculateLayerRectForIndex:(NSUInteger)index {
@@ -320,6 +305,10 @@
 }
 
 - (void)selectIndex:(NSUInteger)index animated:(BOOL)animated {
+    if (index == -1) {
+        self.selectedRect = CGRectZero;
+    }
+    
     if (animated) {
         CGPathRef prevContentPath = self.contentPathLayer.path;
         CGRect prevContentBounds = self.contentPathLayer.bounds;
@@ -352,6 +341,46 @@
 #pragma mark - Actions
 
 - (void)tapGestureRecognizerAction:(UIGestureRecognizer *)recognizer {
+    
+    CGPoint viewLocation = [recognizer locationInView:self];
+    
+    if (CGRectContainsPoint(self.contentPathLayer.frame, viewLocation)) {
+        CGPoint layerLocation = [self.layer convertPoint:viewLocation toLayer:self.contentPathLayer];
+        
+        if (CGRectEqualToRect(CGRectZero, self.selectedRect)
+            || !CGRectContainsPoint(self.selectedRect, layerLocation)) {
+            NSInteger index = [self __calculateIndexFromPoint:layerLocation];
+            if (index != -1) {
+                [self selectIndex:index animated:YES];
+            }
+        }
+    }
+}
+
+- (NSInteger)__calculateIndexFromPoint:(CGPoint)point {
+    NSInteger resultIndex = -1;
+    
+    CGSize defaultItemSize = [self defaultSize];
+    CGFloat itemWidth = defaultItemSize.width + self.itemSpace;
+    
+    if (CGRectEqualToRect(CGRectZero, self.selectedRect)) {
+        resultIndex = floor(point.x / itemWidth);
+    }
+    else {
+        CGFloat rectMinX = CGRectGetMinX(self.selectedRect);
+        CGFloat rectMaxX = CGRectGetMaxX(self.selectedRect);
+        
+        if (point.x < rectMinX) {
+            resultIndex = floor(point.x / itemWidth);
+        }
+        else if (point.x > rectMaxX) {
+            CGFloat pointXValue = point.x - rectMaxX;
+            NSInteger pointIndex = floor(pointXValue / itemWidth);
+            resultIndex = self.selectedIndex + pointIndex + 1;
+        }
+    }
+    
+    return resultIndex;
 }
 
 #pragma mark - Getters and Setters

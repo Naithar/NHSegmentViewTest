@@ -21,6 +21,9 @@
     [super viewDidLoad];
     
     [self.segmentView setValues:@[@"1", @"2", @"3"]];
+    [self.segmentView changeValue:nil selectedValue:@"1 long text to select" atIndex:0];
+    [self.segmentView changeValue:nil selectedValue:@"2 long text to select" atIndex:1];
+    [self.segmentView changeValue:nil selectedValue:@"3 long text to select" atIndex:2];
 }
 
 - (void)didReceiveMemoryWarning {
