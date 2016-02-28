@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol NHSegmentViewDelegate <NSObject>
 
+@optional
 - (void)nhSegmentView:(NHSegmentView *)segmentView didChangeIndex:(NSInteger)index;
 
 @end

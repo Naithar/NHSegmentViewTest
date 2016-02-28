@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
     </dependencies>
     <scenes>
-        <!--Storyboard-->
+        <!--Delegate-->
         <scene sceneID="R6j-Kr-9QF">
             <objects>
                 <viewController id="rBc-YB-HRL" customClass="StoryboardViewController" sceneMemberID="viewController">
@@ -52,17 +52,30 @@
                                         <size key="value" width="50" height="50"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <outlet property="delegate" destination="rBc-YB-HRL" id="x4c-TI-yhv"/>
+                                </connections>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fxQ-uf-lJB">
+                                <rect key="frame" x="292.5" y="162.5" width="15.5" height="20.5"/>
+                                <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="30v-n5-nAK" firstAttribute="top" secondItem="fxQ-uf-lJB" secondAttribute="bottom" constant="35" id="Hxe-dB-8IX"/>
                             <constraint firstItem="30v-n5-nAK" firstAttribute="leading" secondItem="19W-HS-USw" secondAttribute="leading" constant="10" id="YfB-QR-y0j"/>
+                            <constraint firstItem="fxQ-uf-lJB" firstAttribute="centerX" secondItem="19W-HS-USw" secondAttribute="centerX" id="Z3F-ch-HZu"/>
                             <constraint firstItem="30v-n5-nAK" firstAttribute="centerY" secondItem="19W-HS-USw" secondAttribute="centerY" id="lg3-zC-0jB"/>
                             <constraint firstAttribute="trailing" secondItem="30v-n5-nAK" secondAttribute="trailing" constant="10" id="x0N-2p-HUs"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Storyboard" id="Z9C-l1-UQk"/>
                     <connections>
+                        <outlet property="segmentLabel" destination="fxQ-uf-lJB" id="ZX7-dp-u5j"/>
                         <outlet property="segmentView" destination="30v-n5-nAK" id="e20-3Q-c1U"/>
                     </connections>
                 </viewController>

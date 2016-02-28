@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "NHSegmentView.h"
 
-@interface ViewController ()
+@interface ViewController ()<NHSegmentViewDelegate>
 
 @property (nonatomic, strong) NHSegmentView *segmentView;
 
@@ -30,6 +30,7 @@
     
     CGRect segmentRect = CGRectMake(15, viewMidY - 50, viewWidth - 30, 100);
     self.segmentView = [[NHSegmentView alloc] initWithFrame:segmentRect];
+    self.segmentView.delegate = self;
     self.segmentView.backgroundColor = [UIColor redColor];
     
     [self.view addSubview:self.segmentView];
@@ -39,6 +40,12 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+
+#pragma mark - Segment View Delegate
+- (void)nhSegmentView:(NHSegmentView *)segmentView didChangeIndex:(NSInteger)index {
+    NSLog(@"changed index to %ld", index);
 }
 
 @end

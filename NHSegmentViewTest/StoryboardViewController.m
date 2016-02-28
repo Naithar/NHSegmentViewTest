@@ -12,6 +12,7 @@
 @interface StoryboardViewController ()
 
 @property (strong, nonatomic) IBOutlet NHSegmentView *segmentView;
+@property (strong, nonatomic) IBOutlet UILabel *segmentLabel;
 
 @end
 
@@ -28,6 +29,20 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+@end
+
+@interface StoryboardViewController (SegmentDelegate)<NHSegmentViewDelegate>
+
+@end
+
+@implementation StoryboardViewController (SegmentDelegate)
+
+- (void)nhSegmentView:(NHSegmentView *)segmentView didChangeIndex:(NSInteger)index {
+    NSLog(@"changed index to %ld", index);
+    
+    self.segmentLabel.text = [@(index) stringValue];
 }
 
 @end

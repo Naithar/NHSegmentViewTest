@@ -335,6 +335,11 @@
         self.selectedIndex = index;
         [self resetLayers];
     }
+    
+    __weak __typeof(self) weakSelf = self;
+    if ([weakSelf.delegate respondsToSelector:@selector(nhSegmentView:didChangeIndex:)]) {
+        [weakSelf.delegate nhSegmentView:weakSelf didChangeIndex:index];
+    }
 }
 
 
