@@ -57,6 +57,9 @@
 }
 
 - (void)__nhCommonInit {
+#if TARGET_INTERFACE_BUILDER
+    self.itemsCount = -1;
+#endif
     self.selectedIndex = -1;
     self.mutableItemValues = [NSMutableArray new];
     self.mutableSelectedItemValues = [NSMutableArray new];
@@ -80,6 +83,26 @@
 }
 
 - (void)resetLayers {
+    
+#if TARGET_INTERFACE_BUILDER
+    if (self.itemsCount == 0) {
+        self.contentPathLayer.path = nil;
+        self.contentPathLayer.bounds = CGRectZero;
+        self.borderPathLayer.bounds = CGRectZero;
+        self.borderPathLayer.path = nil;
+        return;
+    }
+#else
+    if (self.itemValues.count == 0) {
+        self.contentPathLayer.path = nil;
+        self.contentPathLayer.bounds = CGRectZero;
+        self.borderPathLayer.bounds = CGRectZero;
+        self.borderPathLayer.path = nil;
+        return;
+    }
+#endif
+    
+    
     CGPathRef contentLayerPath = [self __calculateLayerPath];
     CGRect contentLayerBounds = CGPathGetBoundingBox(contentLayerPath);
     
@@ -249,7 +272,7 @@
 }
 
 - (NSInteger)itemsCount {
-    if (_itemsCount == 0) {
+    if (_itemsCount < 0) {
         return 3;
     }
     

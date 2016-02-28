@@ -24,7 +24,7 @@ IB_DESIGNABLE
 @property (nonatomic, nullable, weak) IBOutlet id<NHSegmentViewDelegate> delegate;
 
 #if TARGET_INTERFACE_BUILDER
-@property (nonatomic, assign) IBInspectable NSUInteger itemsCount;
+@property (nonatomic, assign) IBInspectable NSInteger itemsCount;
 #endif
 
 @property (nonatomic, assign) IBInspectable CGSize defaultSize;
