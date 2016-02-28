@@ -102,7 +102,6 @@
     }
 #endif
     
-    
     CGPathRef contentLayerPath = [self __calculateLayerPath];
     CGRect contentLayerBounds = CGPathGetBoundingBox(contentLayerPath);
     
@@ -129,32 +128,41 @@
     }
 }
 
+- (CGRect)__calculateLayerRectForIndex:(NSUInteger)index {
+    CGSize defaultItemSize = [self defaultSize];
+    CGFloat itemSpace = self.itemSpace;
+    CGFloat itemWidth = (defaultItemSize.width + itemSpace);
+    CGPoint itemPoint = CGPointMake(index * itemWidth, 0);
+    CGSize itemSize = defaultItemSize;
+    CGRect itemRect = (CGRect) {
+        .origin = itemPoint,
+        .size = itemSize
+    };
+    
+    return itemRect;
+}
+
 - (CGPathRef)__calculateLayerPath {
     
     CGMutablePathRef layerPath = CGPathCreateMutable();
-    CGSize defaultItemSize = [self defaultSize];
-    CGFloat itemSpace = self.itemSpace;
     CGFloat itemCornerRadius = self.cornerRadius;
     CGFloat lineWidth = self.itemSpaceLineWidth;
+    CGSize defaultItemSize = [self defaultSize];
     
     //calculate path, add path -- loop, close path
     
 #if TARGET_INTERFACE_BUILDER
     for (int index = 0; index < self.itemsCount; index++) {
-        @autoreleasepool {
-            CGFloat itemWidth = (defaultItemSize.width + itemSpace);
-            CGPoint itemPoint = CGPointMake(index * itemWidth, 0);
-            CGSize itemSize = defaultItemSize;
-            CGRect itemRect = (CGRect) {
-                .origin = itemPoint,
-                .size = itemSize
-            };
-            
-            CGPathAddRoundedRect(layerPath, nil, itemRect, itemCornerRadius, itemCornerRadius);
-        }
+        CGRect itemRect = [self __calculateLayerRectForIndex:index];
+        CGPathAddRoundedRect(layerPath, nil, itemRect, itemCornerRadius, itemCornerRadius);
     }
 #else
-    
+    [self.itemValues enumerateObjectsUsingBlock:^(NSString * _Nonnull obj,
+                                                  NSUInteger index,
+                                                  BOOL * _Nonnull stop) {
+        CGRect itemRect = [self __calculateLayerRectForIndex:index];
+        CGPathAddRoundedRect(layerPath, nil, itemRect, itemCornerRadius, itemCornerRadius);
+    }];
 #endif
     
     if (lineWidth) {
@@ -162,7 +170,8 @@
         CGFloat pathWidth = CGRectGetWidth(pathRect);
         CGFloat pathHeight = CGRectGetHeight(pathRect);
         CGFloat lineRectHeight = MIN(lineWidth, pathHeight);
-        CGRect lineRect = CGRectMake(0, pathHeight / 2 - lineRectHeight / 2, pathWidth, lineRectHeight);
+        CGFloat lineOffset = defaultItemSize.width;
+        CGRect lineRect = CGRectMake(lineOffset / 2, pathHeight / 2 - lineRectHeight / 2, pathWidth - lineOffset, lineRectHeight);
         CGPathAddRect(layerPath, nil, lineRect);
     }
     
@@ -193,6 +202,7 @@
     
     [self.mutableItemValues addObjectsFromArray:itemValues];
     [self.mutableSelectedItemValues addObjectsFromArray:itemValues];
+    [self resetLayers];
 }
 
 - (void)insertValue:(NSString *)value atIndex:(NSUInteger)index {
@@ -202,6 +212,7 @@
 - (void)insertValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSUInteger)index {
     [self.mutableItemValues insertObject:value atIndex:index];
     [self.mutableSelectedItemValues insertObject:selectedValue ?: value atIndex:index];
+    [self resetLayers];
 }
 
 - (void)appendValue:(NSString *)value {
@@ -211,6 +222,7 @@
 - (void)appendValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue {
     [self.mutableItemValues addObject:value];
     [self.mutableSelectedItemValues addObject:selectedValue ?: value];
+    [self resetLayers];
 }
 
 - (void)changeValue:(NSString *)value atIndex:(NSUInteger)index {
@@ -227,6 +239,7 @@
     }
     
     self.mutableSelectedItemValues[index] = selectedValue ?: value ?: self.mutableItemValues[index];
+    [self resetLayers];
 }
 
 - (void)removeAtIndex:(NSUInteger)index {
@@ -236,6 +249,7 @@
     
     [self.mutableItemValues removeObjectAtIndex:index];
     [self.mutableSelectedItemValues removeObjectAtIndex:index];
+    [self resetLayers];
 }
 
 - (nullable NSString *)valueAtIndex:(NSUInteger)index {

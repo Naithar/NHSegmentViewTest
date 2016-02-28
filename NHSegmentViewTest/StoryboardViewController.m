@@ -19,6 +19,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self.segmentView setValues:@[@"1", @"2", @"3"]];
 }
 
 - (void)didReceiveMemoryWarning {

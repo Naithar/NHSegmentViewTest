@@ -33,6 +33,8 @@
     self.segmentView.backgroundColor = [UIColor redColor];
     
     [self.view addSubview:self.segmentView];
+    
+    [self.segmentView setValues:@[@"1", @"2", @"3"]];
 }
 
 - (void)didReceiveMemoryWarning {
