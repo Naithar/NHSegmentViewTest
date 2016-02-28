@@ -184,11 +184,15 @@
         if (index == self.selectedIndex) {
             textLayer.backgroundColor = self.selectedItemColor.CGColor;
             textLayer.foregroundColor = self.selectedItemTextColor.CGColor;
+            textLayer.font = (__bridge CFTypeRef _Nullable)(self.selectedItemFont.fontName);
+            textLayer.fontSize = self.selectedItemFont.pointSize;
             textLayer.string = [self selectedValueAtIndex:index];
         }
         else {
             textLayer.backgroundColor = [UIColor clearColor].CGColor;
             textLayer.foregroundColor = self.itemTextColor.CGColor;
+            textLayer.font = (__bridge CFTypeRef _Nullable)(self.itemFont.fontName);
+            textLayer.fontSize = self.itemFont.pointSize;
             textLayer.string = [self valueAtIndex:index];
         }
         
@@ -459,8 +463,8 @@
 
 - (void)setBorderColor:(UIColor *)borderColor {
     _borderColor = borderColor;
-    self.borderPathLayer.strokeColor = borderColor.CGColor;
-    self.borderPathLayer.fillColor = borderColor.CGColor;
+    self.borderPathLayer.strokeColor = self.borderColor.CGColor;
+    self.borderPathLayer.fillColor = self.borderColor.CGColor;
 }
 
 - (UIColor *)borderColor {
@@ -469,7 +473,7 @@
 
 - (void)setItemColor:(UIColor *)itemColor {
     _itemColor = itemColor;
-    self.contentPathLayer.fillColor = itemColor.CGColor;
+    self.contentPathLayer.fillColor = self.itemColor.CGColor;
 }
 
 - (UIColor *)itemColor {
@@ -479,7 +483,7 @@
 - (void)setItemTextColor:(UIColor *)itemTextColor {
     _itemTextColor = itemTextColor;
     for (CATextLayer *layer in self.textLayers) {
-        layer.foregroundColor = itemTextColor.CGColor;
+        layer.foregroundColor = self.itemTextColor.CGColor;
     }
 }
 
@@ -489,10 +493,16 @@
 
 - (void)setItemFont:(UIFont *)itemFont {
     _itemFont = itemFont;
-    for (CATextLayer *layer in self.textLayers) {
-        layer.font = (__bridge CFTypeRef _Nullable)(itemFont.fontName);
-        layer.fontSize = itemFont.pointSize;
-    }
+    [self.textLayers enumerateObjectsUsingBlock:^(CATextLayer * _Nonnull layer,
+                                                  NSUInteger idx,
+                                                  BOOL * _Nonnull stop) {
+        if (idx == self.selectedIndex) {
+            return;
+        }
+        
+        layer.font = (__bridge CFTypeRef _Nullable)(self.itemFont.fontName);
+        layer.fontSize = self.itemFont.pointSize;
+    }];
 }
 
 - (UIFont *)itemFont {
@@ -513,7 +523,11 @@
 
 - (void)setSelectedItemTextColor:(UIColor *)selectedItemTextColor {
     _selectedItemTextColor = selectedItemTextColor;
-    //TODO: !!!
+    
+    if (self.selectedIndex >= 0) {
+        CATextLayer *textLayer = self.textLayers[self.selectedIndex];
+        textLayer.foregroundColor = self.selectedItemTextColor.CGColor;
+    }
 }
 
 - (UIColor *)selectedItemTextColor {
@@ -522,11 +536,16 @@
 
 - (void)setSelectedItemFont:(UIFont *)selectedItemFont {
     _selectedItemFont = selectedItemFont;
-    //TODO: !!!
+   
+    if (self.selectedIndex >= 0) {
+        CATextLayer *textLayer = self.textLayers[self.selectedIndex];
+        textLayer.font = (__bridge CFTypeRef _Nullable)(self.selectedItemFont.fontName);
+        textLayer.fontSize = self.selectedItemFont.pointSize;
+    }
 }
 
 - (UIFont *)selectedItemFont {
-    return _selectedItemFont ?: [UIFont systemFontOfSize:17];
+    return _selectedItemFont ?: [UIFont systemFontOfSize:20];
 }
 
 - (NSArray<NSString *> *)itemValues {
