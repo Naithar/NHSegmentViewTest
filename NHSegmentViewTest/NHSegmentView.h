@@ -66,6 +66,7 @@ IB_DESIGNABLE
 
 - (void)selectIndex:(NSUInteger)index;
 - (void)selectIndex:(NSUInteger)index animated:(BOOL)animated;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong) CAShapeLayer *borderPathLayer;
 @property (nonatomic, strong) CAShapeLayer *contentPathLayer;
+@property (nonatomic, strong) CALayer *selectionLayer;
 
 @property (nonatomic, strong) NSMutableArray<NSString *> *mutableItemValues;
 @property (nonatomic, strong) NSMutableArray<NSString *> *mutableSelectedItemValues;
@@ -80,7 +81,12 @@
     
     self.contentPathLayer = [CAShapeLayer layer];
     self.contentPathLayer.fillColor = self.itemColor.CGColor;
+    self.contentPathLayer.masksToBounds = true;
     [self.layer addSublayer:self.contentPathLayer];
+    
+    self.selectionLayer = [CALayer layer];
+    self.selectionLayer.backgroundColor = self.selectedItemColor.CGColor;
+    [self.contentPathLayer addSublayer:self.selectionLayer];
     
     [self resetLayers];
 }
@@ -145,8 +151,8 @@
         
         NSString *selectedText = [self selectedValueAtIndex:index];
         CGFloat textWidth = [selectedText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)
-                                              options:NSStringDrawingUsesDeviceMetrics|NSStringDrawingUsesFontLeading|NSStringDrawingUsesLineFragmentOrigin
-                                           attributes:textAttributes
+                                                       options:NSStringDrawingUsesDeviceMetrics|NSStringDrawingUsesFontLeading|NSStringDrawingUsesLineFragmentOrigin
+                                                    attributes:textAttributes
                                                        context:nil].size.width + 5;
         
         itemRect = (CGRect) {
@@ -312,8 +318,19 @@
     if (animated) {
         CGPathRef prevContentPath = self.contentPathLayer.path;
         CGRect prevContentBounds = self.contentPathLayer.bounds;
+        
+        [CATransaction begin];
+        [CATransaction setDisableActions:YES];
+        self.selectionLayer.opacity = 0;
+        [CATransaction commit];
+        
         self.selectedIndex = index;
         [self resetLayers];
+        
+        [CATransaction begin];
+        [CATransaction setCompletionBlock:^{
+            self.selectionLayer.opacity = 1;
+        }];
         
         CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
         pathAnimation.fromValue = (__bridge id _Nullable)(prevContentPath);
@@ -324,12 +341,15 @@
         CAAnimationGroup *animationGroup = [CAAnimationGroup new];
         [animationGroup setAnimations:@[pathAnimation, boundsAnimation]];
         animationGroup.duration = 0.35;
-        animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+        animationGroup.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        
         [self.contentPathLayer addAnimation:animationGroup forKey:@"path|bounds"];
         
         if (self.borderWidth) {
             [self.borderPathLayer addAnimation:animationGroup forKey:@"path|bounds"];
         }
+        
+        [CATransaction commit];
     }
     else {
         self.selectedIndex = index;
@@ -433,6 +453,7 @@
 
 - (void)setCornerRadius:(CGFloat)cornerRadius {
     _cornerRadius = cornerRadius;
+    self.selectionLayer.cornerRadius = cornerRadius;
     [self resetLayers];
 }
 
@@ -480,7 +501,7 @@
 
 - (void)setSelectedItemColor:(UIColor *)selectedItemColor {
     _selectedItemColor = selectedItemColor;
-    //TODO: !!!
+    self.selectionLayer.backgroundColor = self.selectedItemColor.CGColor;
 }
 
 - (UIColor *)selectedItemColor {
@@ -518,6 +539,15 @@
 #if TARGET_INTERFACE_BUILDER
     [self resetLayers];
 #endif
+}
+
+- (void)setSelectedRect:(CGRect)selectedRect {
+    _selectedRect = selectedRect;
+    
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    self.selectionLayer.frame = selectedRect;
+    [CATransaction commit];
 }
 
 @end
