@@ -8,7 +8,7 @@
         <!--Storyboard-->
         <scene sceneID="R6j-Kr-9QF">
             <objects>
-                <viewController id="rBc-YB-HRL" sceneMemberID="viewController">
+                <viewController id="rBc-YB-HRL" customClass="StoryboardViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="l6N-Go-3ad"/>
                         <viewControllerLayoutGuide type="bottom" id="j5h-uJ-Gov"/>
@@ -23,14 +23,6 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="mlf-o3-ZTs"/>
                                 </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="itemsCount">
-                                        <integer key="value" value="4"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="selectedIndex">
-                                        <integer key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -41,6 +33,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Storyboard" id="Z9C-l1-UQk"/>
+                    <connections>
+                        <outlet property="segmentView" destination="30v-n5-nAK" id="e20-3Q-c1U"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cYk-oy-9zY" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

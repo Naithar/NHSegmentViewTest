@@ -65,7 +65,9 @@
 }
 
 - (void)__calculateLayerPaths {
-    
+#if TARGET_INTERFACE_BUILDER
+#else
+#endif
 }
 
 - (void)prepareForInterfaceBuilder {
@@ -84,12 +86,21 @@
 
 #pragma mark - Public Methods
 
+- (void)setValues:(NSArray<NSString *> *)itemValues {
+    [self.mutableItemValues removeAllObjects];
+    [self.mutableSelectedItemValues removeAllObjects];
+    
+    [self.mutableItemValues addObjectsFromArray:itemValues];
+    [self.mutableSelectedItemValues addObjectsFromArray:itemValues];
+}
 
-- (void)insertValue:(NSString *)value atIndex:(NSInteger)index {
+- (void)insertValue:(NSString *)value atIndex:(NSUInteger)index {
     [self insertValue:value selectedValue:nil atIndex:index];
 }
 
-- (void)insertValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSInteger)index {
+- (void)insertValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSUInteger)index {
+    [self.mutableItemValues insertObject:value atIndex:index];
+    [self.mutableSelectedItemValues insertObject:selectedValue ?: value atIndex:index];
 }
 
 - (void)appendValue:(NSString *)value {
@@ -97,26 +108,51 @@
 }
 
 - (void)appendValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue {
-    
+    [self.mutableItemValues addObject:value];
+    [self.mutableSelectedItemValues addObject:selectedValue ?: value];
 }
 
-- (void)changeValue:(NSString *)value atIndex:(NSInteger)index {
+- (void)changeValue:(NSString *)value atIndex:(NSUInteger)index {
     [self changeValue:value selectedValue:nil atIndex:index];
 }
 
-- (void)changeValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSInteger)index {
+- (void)changeValue:(nullable NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSUInteger)index {
+    if (index >= self.itemValues.count) {
+        return;
+    }
     
+    if (value) {
+        self.mutableItemValues[index] = value;
+    }
+    
+    self.mutableSelectedItemValues[index] = selectedValue ?: value ?: self.mutableItemValues[index];
 }
 
-- (void)removeAtIndex:(NSInteger)index {
+- (void)removeAtIndex:(NSUInteger)index {
+    if (index >= self.itemValues.count) {
+        return;
+    }
     
+    [self.mutableItemValues removeObjectAtIndex:index];
+    [self.mutableSelectedItemValues removeObjectAtIndex:index];
 }
 
-- (NSString *)valueAtIndex:(NSInteger)index {
-    return @"";
+- (nullable NSString *)valueAtIndex:(NSUInteger)index {
+    if (index >= self.itemValues.count) {
+        return nil;
+    }
+    
+    NSString *value = self.itemValues[index];
+    return value;
 }
-- (nullable NSString *)selectedValueAtIndex:(NSInteger)index {
-    return nil;
+
+- (nullable NSString *)selectedValueAtIndex:(NSUInteger)index {
+    if (index >= self.selectedItemValues.count) {
+        return nil;
+    }
+    
+    NSString *value = self.selectedItemValues[index];
+    return value;
 }
 
 

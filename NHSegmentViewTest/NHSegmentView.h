@@ -24,7 +24,7 @@ IB_DESIGNABLE
 @property (nonatomic, nullable, weak) IBOutlet id<NHSegmentViewDelegate> delegate;
 
 #if TARGET_INTERFACE_BUILDER
-@property (nonatomic, assign) IBInspectable NSInteger itemsCount;
+@property (nonatomic, assign) IBInspectable NSUInteger itemsCount;
 #endif
 
 @property (nonatomic, assign) IBInspectable CGSize defaultSize;
@@ -46,19 +46,21 @@ IB_DESIGNABLE
 
 @property (nonatomic, assign, readonly) IBInspectable NSInteger selectedIndex;
 
-- (void)insertValue:(NSString *)value atIndex:(NSInteger)index;
-- (void)insertValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSInteger)index;
+- (void)setValues:(NSArray<NSString *> *)itemValues;
+
+- (void)insertValue:(NSString *)value atIndex:(NSUInteger)index;
+- (void)insertValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSUInteger)index;
 
 - (void)appendValue:(NSString *)value;
 - (void)appendValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue;
 
-- (void)changeValue:(NSString *)value atIndex:(NSInteger)index;
-- (void)changeValue:(NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSInteger)index;
+- (void)changeValue:(NSString *)value atIndex:(NSUInteger)index;
+- (void)changeValue:(nullable NSString *)value selectedValue:(nullable NSString *)selectedValue atIndex:(NSUInteger)index;
 
-- (void)removeAtIndex:(NSInteger)index;
+- (void)removeAtIndex:(NSUInteger)index;
 
-- (NSString *)valueAtIndex:(NSInteger)index;
-- (nullable NSString *)selectedValueAtIndex:(NSInteger)index;
+- (nullable NSString *)valueAtIndex:(NSUInteger)index;
+- (nullable NSString *)selectedValueAtIndex:(NSUInteger)index;
 
 @end
 

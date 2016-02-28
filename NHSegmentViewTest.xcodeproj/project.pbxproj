@@ -14,6 +14,7 @@
 		90E50DFE1C820D8F003E1779 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90E50DFD1C820D8F003E1779 /* Assets.xcassets */; };
 		90E50E011C820D8F003E1779 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90E50DFF1C820D8F003E1779 /* LaunchScreen.storyboard */; };
 		90E50E0A1C820D9E003E1779 /* NHSegmentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90E50E091C820D9E003E1779 /* NHSegmentView.m */; };
+		90E50E101C821AA4003E1779 /* StoryboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90E50E0F1C821AA4003E1779 /* StoryboardViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,8 @@
 		90E50E021C820D8F003E1779 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		90E50E081C820D9E003E1779 /* NHSegmentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NHSegmentView.h; sourceTree = "<group>"; };
 		90E50E091C820D9E003E1779 /* NHSegmentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NHSegmentView.m; sourceTree = "<group>"; };
+		90E50E0E1C821AA4003E1779 /* StoryboardViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoryboardViewController.h; sourceTree = "<group>"; };
+		90E50E0F1C821AA4003E1779 /* StoryboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StoryboardViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +107,8 @@
 				90E50E091C820D9E003E1779 /* NHSegmentView.m */,
 				90E50DF71C820D8F003E1779 /* ViewController.h */,
 				90E50DF81C820D8F003E1779 /* ViewController.m */,
+				90E50E0E1C821AA4003E1779 /* StoryboardViewController.h */,
+				90E50E0F1C821AA4003E1779 /* StoryboardViewController.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -180,6 +185,7 @@
 			files = (
 				90E50DF91C820D8F003E1779 /* ViewController.m in Sources */,
 				90E50DF61C820D8F003E1779 /* AppDelegate.m in Sources */,
+				90E50E101C821AA4003E1779 /* StoryboardViewController.m in Sources */,
 				90E50E0A1C820D9E003E1779 /* NHSegmentView.m in Sources */,
 				90E50DF31C820D8F003E1779 /* main.m in Sources */,
 			);
