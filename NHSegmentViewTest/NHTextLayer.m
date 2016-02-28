@@ -7,7 +7,6 @@
 //
 
 #import "NHTextLayer.h"
-@import CoreText;
 
 @implementation NHTextLayer
 

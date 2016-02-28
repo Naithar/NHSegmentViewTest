@@ -16,6 +16,7 @@
 		90E50E0A1C820D9E003E1779 /* NHSegmentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90E50E091C820D9E003E1779 /* NHSegmentView.m */; };
 		90E50E101C821AA4003E1779 /* StoryboardViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90E50E0F1C821AA4003E1779 /* StoryboardViewController.m */; };
 		90F336B91C8324B300F43EAD /* NHTextLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F336B81C8324B300F43EAD /* NHTextLayer.m */; };
+		90F336BB1C833F0E00F43EAD /* NHSegmentView.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 90F336BA1C833F0E00F43EAD /* NHSegmentView.podspec */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		90E50E0F1C821AA4003E1779 /* StoryboardViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StoryboardViewController.m; sourceTree = "<group>"; };
 		90F336B71C8324B300F43EAD /* NHTextLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NHTextLayer.h; sourceTree = "<group>"; };
 		90F336B81C8324B300F43EAD /* NHTextLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NHTextLayer.m; sourceTree = "<group>"; };
+		90F336BA1C833F0E00F43EAD /* NHSegmentView.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NHSegmentView.podspec; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,7 @@
 		90E50DE51C820D8F003E1779 = {
 			isa = PBXGroup;
 			children = (
+				90F336BA1C833F0E00F43EAD /* NHSegmentView.podspec */,
 				90E50DF01C820D8F003E1779 /* NHSegmentViewTest */,
 				90E50DEF1C820D8F003E1779 /* Products */,
 			);
@@ -176,6 +179,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				90E50E011C820D8F003E1779 /* LaunchScreen.storyboard in Resources */,
+				90F336BB1C833F0E00F43EAD /* NHSegmentView.podspec in Resources */,
 				90E50DFE1C820D8F003E1779 /* Assets.xcassets in Resources */,
 				90E50DFC1C820D8F003E1779 /* Main.storyboard in Resources */,
 			);
